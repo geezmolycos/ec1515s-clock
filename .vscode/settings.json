@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.defaultProfile.windows": "MSYS2 MINGW64 fish",
+    "terminal.integrated.env.windows": {
+        "PATH": "${workspaceFolder}/venv/bin;${env:PATH}"
+    }
+}

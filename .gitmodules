@@ -1,0 +1,3 @@
+[submodule "uni-STC"]
+	path = uni-STC
+	url = https://github.com/area-8051/uni-STC.git
