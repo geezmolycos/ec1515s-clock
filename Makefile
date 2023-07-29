@@ -63,12 +63,12 @@ MCU_FREQ_KHZ := 24000
 
 STACK_SIZE := 112
 
-# Tested on STC8A8K64D4-45I-LQFP48
+# IAP15W413AS
 MEMORY_SIZES := \
 	--xram-loc 0 \
-	--xram-size 8192 \
+	--xram-size 256 \
 	--stack-size $(STACK_SIZE) \
-	--code-size 65536
+	--code-size 13312
 
 MEMORY_MODEL := --model-medium
 
@@ -81,16 +81,29 @@ include ./uni-STC/makefiles/0-directories.mk
 PROJECT_NAME := ec1515s_clock
 
 SRCS := \
+	$(HAL_DIR)/delay.c \
+	$(HAL_DIR)/gpio-hal.c \
+	$(HAL_DIR)/timer-hal.c \
+	$(HAL_DIR)/fifo-buffer.c \
+	$(HAL_DIR)/uart-hal.c \
+	$(HAL_DIR)/serial-console.c \
+	led-seg7.c \
 	main.c
 
-CONSOLE_BAUDRATE := 57600
+CONSOLE_BAUDRATE := 9600
 CONSOLE_PORT := COM5
 
 ISP_PORT := COM5
 
-STCGAL_OPTIONS := -a -P stc89a
+CFLAGS := --std-sdcc11
+
+STCGAL_OPTIONS := -P stc15
 
 # Boilerplate rules ----------------------------------------------------
 include $(MAKE_DIR)/1-mcu-settings.mk
 -include $(DEP_FILE)
 include $(MAKE_DIR)/2-mcu-rules.mk
+
+# show memory usage
+showmem:
+	cat ./build/$(PROJECT_NAME).mem

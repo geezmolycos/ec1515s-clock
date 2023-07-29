@@ -4,16 +4,20 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "D:/scoop/apps/sdcc/current/include/**"
+                "D:/scoop/apps/sdcc/current/include/**",
+                "${workspaceFolder}/uni-STC/hal/"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "__SDCC_mcs51",
+                "MCU_FREQ=24000000UL"
             ],
-            "cStandard": "c17",
+            "cStandard": "c11",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "windows-gcc-x64"
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerPath": ""
         }
     ],
     "version": 4

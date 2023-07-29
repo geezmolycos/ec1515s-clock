@@ -1,6 +1,22 @@
 {
     "terminal.integrated.defaultProfile.windows": "MSYS2 MINGW64 fish",
     "terminal.integrated.env.windows": {
-        "PATH": "${workspaceFolder}/venv/bin;${env:PATH}"
+        "PATH": "${workspaceFolder}/venv/bin;D:/scoop/apps/sdcc/current/bin;${env:PATH}"
+    },
+    "files.associations": {
+        "skdip28.h": "c",
+        "stdint.h": "c",
+        "stdint-gcc.h": "c",
+        "cstdint": "c",
+        "project-defs.h": "c",
+        "serial-console.h": "c",
+        "uart-hal.h": "c",
+        "uni-stc.h": "c",
+        "hal-defs.h": "c",
+        "timer-hal.h": "c",
+        "stcmcu.h": "c",
+        "adc.h": "c",
+        "led-seg7.h": "c",
+        "gpio-hal.h": "c"
     }
 }
