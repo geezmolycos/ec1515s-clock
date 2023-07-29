@@ -1,10 +1,6 @@
 
 #include "led-seg7.h"
 
-inline void led_seg7_clear(){
-    gpioWrite(&led_seg7_cols, 0xff);
-}
-
 static uint8_t led_seg7_on_row_index = 0;
 
 void led_scan_row(uint8_t row_index){
@@ -20,7 +16,7 @@ void led_scan_row(uint8_t row_index){
     gpioWrite(&led_seg7_rows[row_index], 1);
 }
 
-static __code uint8_t seg7_code[] = {
+static const uint8_t seg7_code[] = {
     0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71, // 0~F
     0x00,0x73, // none and p
 };

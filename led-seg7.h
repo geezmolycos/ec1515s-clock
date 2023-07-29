@@ -12,7 +12,14 @@ extern bool led_state(uint8_t index);
 extern GpioConfig led_seg7_rows[LED_ROW_COUNT + SEG7_DIGIT_COUNT];
 extern GpioConfig led_seg7_cols;
 
-uint8_t seg7_digit[SEG7_DIGIT_COUNT];
-uint8_t seg7_colon;
+extern uint8_t seg7_digit[SEG7_DIGIT_COUNT];
+extern uint8_t seg7_colon;
+
+inline void led_seg7_clear(){
+    gpioWrite(&led_seg7_cols, 0xff);
+}
+
+void led_scan_row(uint8_t row_index);
+void seg7_scan_digit(uint8_t digit_index);
 
 #endif // _LED_SEG7_H
