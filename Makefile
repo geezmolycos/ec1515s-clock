@@ -87,10 +87,10 @@ SRCS := \
 	$(HAL_DIR)/fifo-buffer.c \
 	$(HAL_DIR)/uart-hal.c \
 	$(HAL_DIR)/serial-console.c \
-	led-seg7.c \
+	led-seg.c \
 	main.c
 
-CONSOLE_BAUDRATE := 9600
+CONSOLE_BAUDRATE := 57900
 CONSOLE_PORT := COM5
 
 ISP_PORT := COM5

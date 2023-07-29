@@ -5,7 +5,7 @@
 #include <STC/15W4xxAS/SKDIP28.h>
 
 #define CONSOLE_UART   UART1
-#define CONSOLE_SPEED  9600UL
+#define CONSOLE_SPEED  57600UL
 #define CONSOLE_PIN_CONFIG 0
 
 #define SUPPRESS_delay1us_WARNING

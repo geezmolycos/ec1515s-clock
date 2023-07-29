@@ -16,7 +16,7 @@
         "timer-hal.h": "c",
         "stcmcu.h": "c",
         "adc.h": "c",
-        "led-seg7.h": "c",
+        "led-seg.h": "c",
         "gpio-hal.h": "c",
         "delay.h": "c",
         "fifo-buffer.h": "c"
