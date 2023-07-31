@@ -3,7 +3,6 @@
 #define _LED_SEG_H
 
 #include "project-defs.h"
-#include <gpio-hal.h>
 
 extern bool led_state(uint8_t index);
 
@@ -30,7 +29,7 @@ inline void led_seg_col_clear(){
     LED_SEG_COL_PORT = 0xff;
 }
 inline void led_seg_row_clear(){
-    P1 = P5 = P3_6 = P3_7 = 0;
+    P1 = 0; P5 = 0; P3_6 = 0; P3_7 = 0;
 }
 
 inline void led_seg_row_set(uint8_t row_index, bool value){
@@ -52,6 +51,8 @@ inline void led_seg_row_set(uint8_t row_index, bool value){
 }
 
 void led_seg_init();
+void led_seg_on();
+void led_seg_off();
 void led_scan_row(uint8_t row_index);
 void seg_scan_digit(uint8_t digit_index);
 

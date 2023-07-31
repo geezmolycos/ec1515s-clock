@@ -59,7 +59,7 @@
 
 # Note: using a system clock around 24MHz works with all MCU
 # having an internal RC oscillator.
-MCU_FREQ_KHZ := 24000
+MCU_FREQ_KHZ := 32000
 
 STACK_SIZE := 112
 
@@ -86,11 +86,15 @@ SRCS := \
 	$(HAL_DIR)/timer-hal.c \
 	$(HAL_DIR)/fifo-buffer.c \
 	$(HAL_DIR)/uart-hal.c \
+	$(HAL_DIR)/adc-comp-hal.c \
 	$(HAL_DIR)/serial-console.c \
 	led-seg.c \
+	button.c \
+	sensor.c \
+	ds1302.c
 	main.c
 
-CONSOLE_BAUDRATE := 57900
+CONSOLE_BAUDRATE := 57600
 CONSOLE_PORT := COM5
 
 ISP_PORT := COM5
