@@ -87,11 +87,12 @@ SRCS := \
 	$(HAL_DIR)/fifo-buffer.c \
 	$(HAL_DIR)/uart-hal.c \
 	$(HAL_DIR)/adc-comp-hal.c \
+	$(HAL_DIR)/pca-hal.c \
 	$(HAL_DIR)/serial-console.c \
 	led-seg.c \
 	button.c \
 	sensor.c \
-	ds1302.c
+	ds1302.c \
 	main.c
 
 CONSOLE_BAUDRATE := 57600
