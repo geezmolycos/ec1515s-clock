@@ -93,6 +93,7 @@ SRCS := \
 	button.c \
 	sensor.c \
 	ds1302.c \
+	buzzer.c \
 	main.c
 
 CONSOLE_BAUDRATE := 57600

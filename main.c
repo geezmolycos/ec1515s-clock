@@ -5,11 +5,13 @@
 #include <serial-console.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <pca-hal.h>
 
 #include "led-seg.h"
 #include "button.h"
 #include "sensor.h"
 #include "ds1302.h"
+#include "buzzer.h"
 
 // uint16_t light = 0x55aa;
 
@@ -31,11 +33,16 @@ ButtonEvent s1e;
 
 uint8_t timer_count = 0;
 uint8_t row_index = 0;
-INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
+DS1302_regs regs;
+uint16_t t = 0;
+INTERRUPT(timer2_isr, TIMER2_INTERRUPT){
+	pcaSetDutyCycle(BUZZER_PCA_CHANNEL, (((t*4)*(42&(t*4)>>10) & 0xff) >> 1) + 64);
+	t++;
 	timer_count++;
 	if (timer_count == 43){
 		timer_count = 0;
-		uint16_t light = ds1302_read_byte(0x81);
+		ds1302_read_registers(&regs);
+		uint16_t light = ds1302_regs_get_bcd_minute(&regs) << 8 | ds1302_regs_get_bcd_second(&regs);
 		seg_digit[0] = light >> 12 & 0xf;
 		seg_digit[1] = light >> 8 & 0xf;
 		seg_digit[2] = light >> 4 & 0xf;
@@ -85,6 +92,7 @@ void main() {
 
 	led_seg_init();
 	sensor_init();
+	buzzer_init();
 	ds1302_write_byte(0x8e, 0x00);
 	ds1302_write_byte(0x80, 0x00);
 
@@ -94,7 +102,7 @@ void main() {
 	EA = 1;
 
 	TimerStatus rc = startTimer(
-		TIMER0,
+		TIMER2,
 		frequencyToSysclkDivisor(2000), 
 		DISABLE_OUTPUT, 
 		ENABLE_INTERRUPT, 
