@@ -23,11 +23,14 @@ bool s1_get(){
 ButtonConfig s1 = {.get=s1_get};
 ButtonEvent s1e;
 
+extern uint8_t led_seg_scan_state;
+
 uint8_t timer_count = 0;
 uint8_t row_index = 0;
 DS1302_regs regs;
 uint16_t t = 0;
-INTERRUPT(timer2_isr, TIMER2_INTERRUPT){
+INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
+	led_seg_auto_scan();
 	timer_count++;
 	if (timer_count == 43){
 		timer_count = 0;
@@ -41,33 +44,20 @@ INTERRUPT(timer2_isr, TIMER2_INTERRUPT){
 		light |= (temp >> 6) / 10 << 12;
 		light |= (temp >> 6) % 10 << 8;
 		light |= (temp & 0x3f) * 10 >> 6;
-		seg_digit[0] = light >> 12 & 0xf;
-		seg_digit[1] = light >> 8 & 0xf;
-		seg_digit[2] = 0x80;
-		seg_digit[3] = light >> 0 & 0xf;
+		seg_set_digit(0, light >> 12 & 0xf);
+		seg_set_digit(1, light >> 8 & 0xf);
+		seg_set_digit(2, 0x80);
+		seg_set_digit(3, light >> 0 & 0xf);
 		button_test_event(&s1, &s1e);
 		sensor_off();
 		led_seg_on();
-		// putchar(0x87);
+		putchar(0x87);
+		putchar(led_seg_scan_state);
 		// putchar(light>>8);
 		// putchar(light & 0xff);
 		// putchar(0x87);
 		// putchar(s1.state);
 		// putchar(s1.time);
-	}
-	if (row_index < LED_ROW_COUNT){
-		led_scan_row(row_index);
-	} else {
-		uint8_t digit_index = row_index - LED_ROW_COUNT;
-		while (digit_index >= SEG_DIGIT_COUNT){
-			digit_index -= SEG_DIGIT_COUNT;
-		}
-		seg_scan_digit(digit_index);
-	}
-	// row_index = rand() % (LED_ROW_COUNT + SEG_DIGIT_COUNT);
-	row_index++;
-	if (row_index >= LED_ROW_COUNT + 4*SEG_DIGIT_COUNT){
-		row_index = 0;
 	}
 }
 
@@ -85,18 +75,15 @@ void main() {
 	ds1302_write_byte(0x8e, 0x00);
 	ds1302_write_byte(0x80, 0x00);
 
-	seg_digit[0] = 1;
-	seg_colon = 0x01;
-
 	for (uint8_t i=0; i < LED_ROW_COUNT; i++){
-		led_state[i] = 0x55;
+		led_seg_state[i] = 0x55;
 	}
 
 	EA = 1;
 
 	TimerStatus rc = startTimer(
-		TIMER2,
-		frequencyToSysclkDivisor(2000), 
+		TIMER0,
+		frequencyToSysclkDivisor(2000),
 		DISABLE_OUTPUT, 
 		ENABLE_INTERRUPT, 
 		FREE_RUNNING

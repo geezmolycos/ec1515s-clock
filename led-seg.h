@@ -20,9 +20,7 @@
 #define LED_SEG_ROW_PIN10 P1_6
 #define LED_SEG_ROW_PIN11 P1_7
 
-extern uint8_t led_state[LED_ROW_COUNT];
-extern uint8_t seg_digit[SEG_DIGIT_COUNT];
-extern uint8_t seg_colon;
+extern uint8_t led_seg_state[LED_ROW_COUNT + SEG_DIGIT_COUNT];
 
 inline void led_seg_col_clear(){
     LED_SEG_COL_PORT = 0xff;
@@ -52,7 +50,19 @@ inline void led_seg_row_set(uint8_t row_index, bool value){
 void led_seg_init();
 void led_seg_on();
 void led_seg_off();
-void led_scan_row(uint8_t row_index);
-void seg_scan_digit(uint8_t digit_index);
+void led_seg_scan_row(uint8_t row_index);
+void seg_set_digit(uint8_t index, uint8_t value);
+void seg_set_colon(uint8_t colon);
+
+typedef enum {
+    LED_SEG_SCAN_NONE = 0,
+    LED_SEG_SCAN_LED,
+    LED_SEG_SCAN_SEG,
+    LED_SEG_SCAN_COUNT
+} LEDSegScanState;
+
+extern uint8_t led_seg_scan_time[LED_SEG_SCAN_COUNT];
+
+void led_seg_auto_scan();
 
 #endif // _LED_SEG_H
