@@ -6,21 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pca-hal.h>
+#include <math.h>
 
 #include "led-seg.h"
 #include "button.h"
 #include "sensor.h"
 #include "ds1302.h"
 #include "buzzer.h"
-
-// uint16_t light = 0x55aa;
-
-bool led_state(uint8_t index){
-	// if (index < 16){
-	// 	return (light >> index) & 1;
-	// }
-	return index & 1;
-}
 
 bool s1_get(){
 	P3_0 = 1;
@@ -36,29 +28,26 @@ uint8_t row_index = 0;
 DS1302_regs regs;
 uint16_t t = 0;
 INTERRUPT(timer2_isr, TIMER2_INTERRUPT){
-	pcaSetDutyCycle(BUZZER_PCA_CHANNEL, (((t*4)*(42&(t*4)>>10) & 0xff) >> 1) + 64);
-	t++;
 	timer_count++;
 	if (timer_count == 43){
 		timer_count = 0;
-		ds1302_read_registers(&regs);
-		uint16_t light = ds1302_regs_get_bcd_minute(&regs) << 8 | ds1302_regs_get_bcd_second(&regs);
+		// ds1302_read_registers(&regs);
+		led_seg_row_clear();
+		led_seg_col_clear();
+		led_seg_off();
+		sensor_on();
+		uint16_t temp = sensor_temp_celsius(sensor_get_temp());
+		uint16_t light = 0;
+		light |= (temp >> 6) / 10 << 12;
+		light |= (temp >> 6) % 10 << 8;
+		light |= (temp & 0x3f) * 10 >> 6;
 		seg_digit[0] = light >> 12 & 0xf;
 		seg_digit[1] = light >> 8 & 0xf;
-		seg_digit[2] = light >> 4 & 0xf;
+		seg_digit[2] = 0x80;
 		seg_digit[3] = light >> 0 & 0xf;
-		// button_test_event(&s1, &s1e);
-		// led_seg_row_clear();
-		// led_seg_col_clear();
-		// led_seg_off();
-		// sensor_on();
-		// uint16_t light = sensor_get_temp();
-		// seg_digit[0] = light >> 12 & 0xf;
-		// seg_digit[1] = light >> 8 & 0xf;
-		// seg_digit[2] = light >> 4 & 0xf;
-		// seg_digit[3] = light >> 0 & 0xf;
-		// sensor_off();
-		// led_seg_on();
+		button_test_event(&s1, &s1e);
+		sensor_off();
+		led_seg_on();
 		// putchar(0x87);
 		// putchar(light>>8);
 		// putchar(light & 0xff);
@@ -70,7 +59,7 @@ INTERRUPT(timer2_isr, TIMER2_INTERRUPT){
 		led_scan_row(row_index);
 	} else {
 		uint8_t digit_index = row_index - LED_ROW_COUNT;
-		while (digit_index > SEG_DIGIT_COUNT){
+		while (digit_index >= SEG_DIGIT_COUNT){
 			digit_index -= SEG_DIGIT_COUNT;
 		}
 		seg_scan_digit(digit_index);
@@ -92,12 +81,16 @@ void main() {
 
 	led_seg_init();
 	sensor_init();
-	buzzer_init();
+	// buzzer_init();
 	ds1302_write_byte(0x8e, 0x00);
 	ds1302_write_byte(0x80, 0x00);
 
 	seg_digit[0] = 1;
 	seg_colon = 0x01;
+
+	for (uint8_t i=0; i < LED_ROW_COUNT; i++){
+		led_state[i] = 0x55;
+	}
 
 	EA = 1;
 

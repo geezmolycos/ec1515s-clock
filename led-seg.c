@@ -1,6 +1,8 @@
 
 #include "led-seg.h"
 
+uint8_t led_state[LED_ROW_COUNT];
+
 void led_seg_init(){
     led_seg_on();
 }
@@ -31,11 +33,7 @@ static void scan_row(uint8_t row_index, uint8_t col_value){
 }
 
 void led_scan_row(uint8_t row_index){
-    uint8_t col_value = 0;
-    for (uint8_t i=0; i<8; ++i){
-        col_value |= led_state(row_index*8 + i) << i;
-    }
-    col_value = ~col_value; // output 1 will turn led off (common anode)
+    uint8_t col_value = ~led_state[row_index]; // output 1 will turn led off (common anode)
     scan_row(row_index, col_value);
 }
 

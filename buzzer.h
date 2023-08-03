@@ -8,5 +8,6 @@
 #define BUZZER_PCA_CHANNEL 0
 
 void buzzer_init();
+void buzzer_output(uint8_t sample);
 
 #endif // _BUZZER_H

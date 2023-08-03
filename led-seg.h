@@ -4,8 +4,6 @@
 
 #include "project-defs.h"
 
-extern bool led_state(uint8_t index);
-
 #define LED_ROW_COUNT 8
 #define SEG_DIGIT_COUNT 4
 #define LED_SEG_COL_PORT P2
@@ -22,6 +20,7 @@ extern bool led_state(uint8_t index);
 #define LED_SEG_ROW_PIN10 P1_6
 #define LED_SEG_ROW_PIN11 P1_7
 
+extern uint8_t led_state[LED_ROW_COUNT];
 extern uint8_t seg_digit[SEG_DIGIT_COUNT];
 extern uint8_t seg_colon;
 

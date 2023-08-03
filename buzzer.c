@@ -20,10 +20,16 @@ void buzzer_init(){
         BUZZER_PCA_CHANNEL,
         PCA_8BIT_PWM,
         PCA_EDGE_NONE,
-        0
+        1
     );
 }
 
-void output_sample(uint8_t sample){
+void buzzer_off(){
+    pcaStopChannel(BUZZER_PCA_CHANNEL);
+    
+}
+
+void buzzer_output(uint8_t sample){
     pcaSetDutyCycle(BUZZER_PCA_CHANNEL, sample);
 }
+
