@@ -89,11 +89,11 @@ SRCS := \
 	$(HAL_DIR)/adc-comp-hal.c \
 	$(HAL_DIR)/pca-hal.c \
 	$(HAL_DIR)/serial-console.c \
-	led-seg.c \
-	button.c \
-	sensor.c \
-	ds1302.c \
-	buzzer.c \
+	driver/led-seg.c \
+	driver/button.c \
+	driver/sensor.c \
+	driver/ds1302.c \
+	driver/buzzer.c \
 	main.c
 
 CONSOLE_BAUDRATE := 57600
@@ -101,7 +101,7 @@ CONSOLE_PORT := COM5
 
 ISP_PORT := COM5
 
-CFLAGS := --std-sdcc11 --opt-code-size
+PROJECT_FLAGS := -I./driver
 
 STCGAL_OPTIONS := -P stc15
 
