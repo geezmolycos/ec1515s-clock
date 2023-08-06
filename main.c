@@ -19,46 +19,55 @@ bool s1_get(){
 	delay10us(1);
 	return P3_0;
 }
-
 ButtonConfig s1 = {.get=s1_get};
 ButtonEvent s1e;
 
-extern uint8_t led_seg_scan_state;
-
-uint8_t timer_count = 0;
-uint8_t row_index = 0;
 DS1302_regs regs;
-uint16_t t = 0;
+
+uint16_t before_t0;
+uint16_t after_t0;
+uint8_t count_fast = 0;
+uint8_t count_slow = 0;
 INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
+	before_t0 = T0;
 	led_seg_auto_scan();
-	timer_count++;
-	if (timer_count == 43){
-		timer_count = 0;
-		// ds1302_read_registers(&regs);
-		led_seg_row_clear();
-		led_seg_col_clear();
-		led_seg_off();
-		sensor_on();
-		uint16_t temp = sensor_temp_celsius(sensor_get_temp());
-		uint16_t light = 0;
-		light |= (temp >> 6) / 10 << 12;
-		light |= (temp >> 6) % 10 << 8;
-		light |= (temp & 0x3f) * 10 >> 6;
-		seg_set_digit(0, light >> 12 & 0xf);
-		seg_set_digit(1, light >> 8 & 0xf);
-		seg_set_digit(2, 0x80);
-		seg_set_digit(3, light >> 0 & 0xf);
-		button_test_event(&s1, &s1e);
-		sensor_off();
-		led_seg_on();
-		putchar(0x87);
-		putchar(led_seg_scan_state);
-		// putchar(light>>8);
-		// putchar(light & 0xff);
-		// putchar(0x87);
-		// putchar(s1.state);
-		// putchar(s1.time);
+	count_fast++;
+	if (count_fast == 160){
+		count_fast = 0;
+		count_slow++;
 	}
+	after_t0 = T0;
+}
+
+uint8_t last_second = 0xff;
+uint8_t colon_count_slow = 0;
+void time_displayer(){
+	ds1302_read_registers(&regs);
+	uint8_t hour = ds1302_regs_get_bcd_hour_24(&regs);
+	uint8_t minute = ds1302_regs_get_bcd_minute(&regs);
+	uint8_t second = ds1302_regs_get_bcd_second(&regs);
+	seg_set_digit(0, (hour & 0xf0) >> 4);
+	seg_set_digit(1, hour & 0x0f);
+	seg_set_digit(2, (minute & 0xf0) >> 4);
+	seg_set_digit(3, minute & 0x0f);
+	if (second != last_second){
+		colon_count_slow = count_slow;
+	}
+	last_second = second;
+	bool colon = true;
+	if ((uint8_t)(count_slow - colon_count_slow) > 25){
+		colon = false;
+	}
+	seg_set_colon(colon ? 0x03 : 0x00);
+	for (uint8_t i=0; i < LED_ROW_COUNT; i++){
+		led_seg_state[i] = 0x00;
+	}
+	uint8_t place = ((second & 0xf0) >> 4) * 10 + (second & 0x0f);
+	uint8_t byte_i = place / 8, bit_i = place % 8;
+	// putchar(0x88);
+	// putchar(count_slow);
+	// putchar(colon_count_slow);
+	led_seg_state[byte_i] = 1 << bit_i;
 }
 
 void main() {
@@ -73,22 +82,40 @@ void main() {
 	sensor_init();
 	// buzzer_init();
 	ds1302_write_byte(0x8e, 0x00);
-	ds1302_write_byte(0x80, 0x00);
+	uint8_t s = ds1302_read_byte(0x81);
+	if (!(s & 0x80)){ // enable clock
+		ds1302_write_byte(0x80, s & 0x7f);
+	}
 
 	for (uint8_t i=0; i < LED_ROW_COUNT; i++){
 		led_seg_state[i] = 0x55;
 	}
 
-	EA = 1;
-
-	TimerStatus rc = startTimer(
+	// fast timer for matrix scanning
+	TimerStatus rc0 = startTimer(
 		TIMER0,
-		frequencyToSysclkDivisor(2000),
+		frequencyToSysclkDivisor(8000),
 		DISABLE_OUTPUT, 
 		ENABLE_INTERRUPT, 
 		FREE_RUNNING
 	);
+	// IP1L |= 0x02; // set T0 as high priority
 
-	printf_tiny("Run ok %d!\n", (int)rc);
-	while(1);
+	uint16_t full_t0 = T0;
+
+	EA = 1;
+
+	printf_tiny("Run ok %d!\n", (int)rc0);
+	
+	while(1){
+		delay1ms(18);
+		// putchar(0x87);
+		// putchar(full_t0 >> 8);
+		// putchar(full_t0 >> 0);
+		// putchar((before_t0) >> 8);
+		// putchar((before_t0) >> 0);
+		// putchar((after_t0) >> 8);
+		// putchar((after_t0) >> 0);
+		time_displayer();
+	}
 }

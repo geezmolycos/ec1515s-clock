@@ -52,12 +52,12 @@ void seg_set_digit(uint8_t index, uint8_t value){
 }
 
 void seg_set_colon(uint8_t colon){
-    led_seg_state[LED_ROW_COUNT] &= (colon & 0) << 7;
-    led_seg_state[LED_ROW_COUNT + 1] &= (colon & 1) << 7;
+    led_seg_state[LED_ROW_COUNT] |= (colon & 0) << 7;
+    led_seg_state[LED_ROW_COUNT + 1] |= (colon & 1) << 7;
 }
 
 LEDSegScanState led_seg_scan_state = LED_SEG_SCAN_NONE;
-uint8_t led_seg_scan_time[LED_SEG_SCAN_COUNT] = {0, 3, 4};
+uint8_t led_seg_scan_time[LED_SEG_SCAN_COUNT] = {0, 1, 4};
 uint8_t led_seg_scan_round = 0;
 uint8_t led_seg_scan_row_index = 0;
 

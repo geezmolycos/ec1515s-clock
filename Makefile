@@ -101,7 +101,7 @@ CONSOLE_PORT := COM5
 
 ISP_PORT := COM5
 
-CFLAGS := --std-sdcc11
+CFLAGS := --std-sdcc11 --opt-code-size
 
 STCGAL_OPTIONS := -P stc15
 
