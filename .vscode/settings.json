@@ -19,6 +19,8 @@
         "led-seg.h": "c",
         "gpio-hal.h": "c",
         "delay.h": "c",
-        "fifo-buffer.h": "c"
+        "fifo-buffer.h": "c",
+        "time.h": "c",
+        "datetime.h": "c"
     }
 }

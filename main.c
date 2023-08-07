@@ -1,5 +1,6 @@
 
-#include "project-defs.h"
+#include "main.h"
+
 #include <delay.h>
 #include <uart-hal.h>
 #include <serial-console.h>
@@ -8,19 +9,23 @@
 #include <pca-hal.h>
 #include <math.h>
 
-#include "led-seg.h"
-#include "button.h"
-#include "sensor.h"
-#include "ds1302.h"
-#include "buzzer.h"
+#include "datetime.h"
 
 bool s1_get(){
+	P3_1 = 1;
+	delay10us(1);
+	return P3_1;
+}
+ButtonConfig s1 = {.get=s1_get};
+ButtonEvent s1e;
+
+bool s2_get(){
 	P3_0 = 1;
 	delay10us(1);
 	return P3_0;
 }
-ButtonConfig s1 = {.get=s1_get};
-ButtonEvent s1e;
+ButtonConfig s2 = {.get=s2_get};
+ButtonEvent s2e;
 
 DS1302_regs regs;
 
@@ -39,36 +44,11 @@ INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
 	after_t0 = T0;
 }
 
-uint8_t last_second = 0xff;
-uint8_t colon_count_slow = 0;
-void time_displayer(){
-	ds1302_read_registers(&regs);
-	uint8_t hour = ds1302_regs_get_bcd_hour_24(&regs);
-	uint8_t minute = ds1302_regs_get_bcd_minute(&regs);
-	uint8_t second = ds1302_regs_get_bcd_second(&regs);
-	seg_set_digit(0, (hour & 0xf0) >> 4);
-	seg_set_digit(1, hour & 0x0f);
-	seg_set_digit(2, (minute & 0xf0) >> 4);
-	seg_set_digit(3, minute & 0x0f);
-	if (second != last_second){
-		colon_count_slow = count_slow;
-	}
-	last_second = second;
-	bool colon = true;
-	if ((uint8_t)(count_slow - colon_count_slow) > 25){
-		colon = false;
-	}
-	seg_set_colon(colon ? 0x03 : 0x00);
-	for (uint8_t i=0; i < LED_ROW_COUNT; i++){
-		led_seg_state[i] = 0x00;
-	}
-	uint8_t place = ((second & 0xf0) >> 4) * 10 + (second & 0x0f);
-	uint8_t byte_i = place / 8, bit_i = place % 8;
-	// putchar(0x88);
-	// putchar(count_slow);
-	// putchar(colon_count_slow);
-	led_seg_state[byte_i] = 1 << bit_i;
-}
+void (*displayer[1])(bool) = {time_displayer};
+void (*displayer_init[1])(bool) = {time_displayer_init};
+void (*displayer_exit[1])(bool) = {time_displayer_exit};
+uint8_t current_displayer = 0;
+uint8_t is_adjust = false;
 
 void main() {
 
@@ -80,7 +60,8 @@ void main() {
 
 	led_seg_init();
 	sensor_init();
-	// buzzer_init();
+	buzzer_init();
+	buzzer_off();
 	ds1302_write_byte(0x8e, 0x00);
 	uint8_t s = ds1302_read_byte(0x81);
 	if (!(s & 0x80)){ // enable clock
@@ -116,6 +97,24 @@ void main() {
 		// putchar((before_t0) >> 0);
 		// putchar((after_t0) >> 8);
 		// putchar((after_t0) >> 0);
-		time_displayer();
+		ds1302_read_registers(&regs);
+		button_test_event(&s1, &s1e);
+		button_test_event(&s2, &s2e);
+		// putchar(0x87);
+		// putchar(s2.state);
+		// putchar(s2.series);
+		// putchar(s2e.type);
+		displayer[current_displayer](is_adjust);
+		if (
+			(s1e.type == BUTTONEVENT_DOWN || s2e.type == BUTTONEVENT_DOWN)
+			&& (
+				s1.state & M_BUTTON_STATE_ISDOWN
+				&& s2.state & M_BUTTON_STATE_ISDOWN
+			)
+		){
+			displayer_exit[current_displayer](is_adjust);
+			is_adjust = !is_adjust;
+			displayer_init[current_displayer](is_adjust);
+		}
 	}
 }

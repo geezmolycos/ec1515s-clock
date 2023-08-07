@@ -27,6 +27,7 @@ void button_test_event(ButtonConfig *button, ButtonEvent *event){
             }
             isdown = !isdown;
             button->time = 0;
+            repeat = false;
         }
     } else {
         if (new_isdown != isdown){

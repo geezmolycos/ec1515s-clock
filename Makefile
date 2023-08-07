@@ -94,6 +94,7 @@ SRCS := \
 	driver/sensor.c \
 	driver/ds1302.c \
 	driver/buzzer.c \
+	ui/datetime.c \
 	main.c
 
 CONSOLE_BAUDRATE := 57600
@@ -101,7 +102,7 @@ CONSOLE_PORT := COM5
 
 ISP_PORT := COM5
 
-PROJECT_FLAGS := -I./driver
+PROJECT_FLAGS := -I./driver -I./ui
 
 STCGAL_OPTIONS := -P stc15
 

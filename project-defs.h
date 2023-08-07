@@ -8,6 +8,11 @@
 #define CONSOLE_SPEED  57600UL
 #define CONSOLE_PIN_CONFIG 0
 
+#define HAL_UARTS 1
+// #define HAL_PCA_CHANNELS 2
+#define BASIC_GPIO_HAL
+#define UART_DEFAULT_BUFFER_SIZE 8
+
 #define SUPPRESS_delay1us_WARNING
 
 #endif // _PROJECT_DEFS_H
