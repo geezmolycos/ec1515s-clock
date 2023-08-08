@@ -44,9 +44,9 @@ INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
 	after_t0 = T0;
 }
 
-void (*displayer[1])(bool) = {time_displayer};
-void (*displayer_init[1])(bool) = {time_displayer_init};
-void (*displayer_exit[1])(bool) = {time_displayer_exit};
+void (*const displayer[4])(bool) = {time_displayer};
+void (*const displayer_init[4])(bool) = {time_displayer_init};
+void (*const displayer_exit[4])(bool) = {time_displayer_exit};
 uint8_t current_displayer = 0;
 uint8_t is_adjust = false;
 
@@ -61,8 +61,10 @@ void main() {
 	led_seg_init();
 	sensor_init();
 	buzzer_init();
-	buzzer_off();
-	ds1302_write_byte(0x8e, 0x00);
+	// buzzer_off();
+	if (ds1302_read_byte(0x8e)){ // disable write protection
+		ds1302_write_byte(0x8e, 0x00);
+	}
 	uint8_t s = ds1302_read_byte(0x81);
 	if (!(s & 0x80)){ // enable clock
 		ds1302_write_byte(0x80, s & 0x7f);
