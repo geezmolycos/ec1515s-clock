@@ -11,4 +11,10 @@ void time_displayer_init(bool adjust);
 void time_displayer_exit(bool adjust);
 void time_displayer(bool adjust);
 
+void date_displayer_init(bool is_adjust);
+void date_displayer_exit(bool is_adjust);
+void date_displayer(bool adjust);
+void year_displayer_init(bool adjust);
+void year_displayer(bool adjust);
+
 #endif // _UI_DATETIME_H

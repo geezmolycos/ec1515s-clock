@@ -44,9 +44,9 @@ INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
 	after_t0 = T0;
 }
 
-void (*const displayer[4])(bool) = {time_displayer};
-void (*const displayer_init[4])(bool) = {time_displayer_init};
-void (*const displayer_exit[4])(bool) = {time_displayer_exit};
+void (*const displayer[DISPLAYER_AMOUNT])(bool) = {time_displayer, date_displayer, year_displayer};
+void (*const displayer_init[DISPLAYER_AMOUNT])(bool) = {time_displayer_init, date_displayer_init, year_displayer_init,};
+void (*const displayer_exit[DISPLAYER_AMOUNT])(bool) = {time_displayer_exit, date_displayer_exit, date_displayer_exit,};
 uint8_t current_displayer = 0;
 uint8_t is_adjust = false;
 
@@ -89,24 +89,33 @@ void main() {
 	EA = 1;
 
 	printf_tiny("Run ok %d!\n", (int)rc0);
+	ds1302_read_registers(&regs);
+	button_test_event(&s1, &s1e);
+	button_test_event(&s2, &s2e);
+	displayer_init[current_displayer](is_adjust);
 	
 	while(1){
 		delay1ms(18);
-		// putchar(0x87);
-		// putchar(full_t0 >> 8);
-		// putchar(full_t0 >> 0);
-		// putchar((before_t0) >> 8);
-		// putchar((before_t0) >> 0);
-		// putchar((after_t0) >> 8);
-		// putchar((after_t0) >> 0);
 		ds1302_read_registers(&regs);
 		button_test_event(&s1, &s1e);
 		button_test_event(&s2, &s2e);
-		// putchar(0x87);
-		// putchar(s2.state);
-		// putchar(s2.series);
-		// putchar(s2e.type);
 		displayer[current_displayer](is_adjust);
+		if (!is_adjust && s1e.type == BUTTONEVENT_DOWN){
+			displayer_exit[current_displayer](is_adjust);
+			current_displayer++;
+			if (current_displayer >= DISPLAYER_AMOUNT){
+				current_displayer = 0;
+			}
+			displayer_init[current_displayer](is_adjust);
+		}
+		if (!is_adjust && s2e.type == BUTTONEVENT_DOWN){
+			displayer_exit[current_displayer](is_adjust);
+			current_displayer--;
+			if (current_displayer >= DISPLAYER_AMOUNT){
+				current_displayer = DISPLAYER_AMOUNT - 1;
+			}
+			displayer_init[current_displayer](is_adjust);
+		}
 		if (
 			(s1e.type == BUTTONEVENT_DOWN || s2e.type == BUTTONEVENT_DOWN)
 			&& (

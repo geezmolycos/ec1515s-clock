@@ -10,6 +10,8 @@
 #include "ds1302.h"
 #include "buzzer.h"
 
+#define DISPLAYER_AMOUNT 3
+
 extern ButtonConfig s1;
 extern ButtonEvent s1e;
 
