@@ -1,7 +1,7 @@
 
 #include "led-seg.h"
 
-uint8_t led_seg_state[LED_ROW_COUNT + SEG_DIGIT_COUNT];
+__data uint8_t led_seg_state[LED_ROW_COUNT + SEG_DIGIT_COUNT];
 
 void led_seg_init(){
     led_seg_on();
@@ -39,7 +39,7 @@ void led_seg_scan_row(uint8_t row_index){
 
 static const uint8_t seg_code[] = {
     0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71, // 0~F
-    0x00,0x73,0x76,0x40 // none, p, H, -
+    0x00,0x73,0x76,0x40,0x58,0x18 // none, p, H, -, c, L
 };
 
 void seg_set_digit(uint8_t index, uint8_t value){

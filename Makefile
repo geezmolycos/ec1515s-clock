@@ -95,6 +95,7 @@ SRCS := \
 	driver/ds1302.c \
 	driver/buzzer.c \
 	ui/datetime.c \
+	ui/temp-light.c \
 	main.c
 
 CONSOLE_BAUDRATE := 57600

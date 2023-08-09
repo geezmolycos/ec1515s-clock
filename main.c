@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "datetime.h"
+#include "temp-light.h"
 
 bool s1_get(){
 	P3_1 = 1;
@@ -44,11 +45,17 @@ INTERRUPT(timer0_isr, TIMER0_INTERRUPT){
 	after_t0 = T0;
 }
 
-void (*const displayer[DISPLAYER_AMOUNT])(bool) = {time_displayer, date_displayer, year_displayer};
-void (*const displayer_init[DISPLAYER_AMOUNT])(bool) = {time_displayer_init, date_displayer_init, year_displayer_init,};
-void (*const displayer_exit[DISPLAYER_AMOUNT])(bool) = {time_displayer_exit, date_displayer_exit, date_displayer_exit,};
+void (*const displayer[DISPLAYER_AMOUNT])(bool) = {time_displayer, date_displayer, year_displayer, temp_displayer, light_displayer};
+void (*const displayer_init[DISPLAYER_AMOUNT])(bool) = {time_displayer_init, date_displayer_init, year_displayer_init, temp_displayer_init, temp_displayer_init};
+void (*const displayer_exit[DISPLAYER_AMOUNT])(bool) = {time_displayer_exit, date_displayer_exit, date_displayer_exit, temp_displayer_exit, temp_displayer_exit};
 uint8_t current_displayer = 0;
 uint8_t is_adjust = false;
+
+void set_adjust(bool adjust){
+	displayer_exit[current_displayer](is_adjust);
+	is_adjust = adjust;
+	displayer_init[current_displayer](is_adjust);
+}
 
 void main() {
 
@@ -61,7 +68,7 @@ void main() {
 	led_seg_init();
 	sensor_init();
 	buzzer_init();
-	// buzzer_off();
+	buzzer_off();
 	if (ds1302_read_byte(0x8e)){ // disable write protection
 		ds1302_write_byte(0x8e, 0x00);
 	}
@@ -88,14 +95,19 @@ void main() {
 
 	EA = 1;
 
-	printf_tiny("Run ok %d!\n", (int)rc0);
+	volatile uint16_t k = 1245;
+	putchar((k % 10) >> 8);
+	putchar((k % 10) & 0xff);
+
 	ds1302_read_registers(&regs);
 	button_test_event(&s1, &s1e);
 	button_test_event(&s2, &s2e);
 	displayer_init[current_displayer](is_adjust);
 	
+	uint8_t last_count_slow = count_slow;
 	while(1){
-		delay1ms(18);
+		while(last_count_slow == count_slow);
+		last_count_slow = count_slow;
 		ds1302_read_registers(&regs);
 		button_test_event(&s1, &s1e);
 		button_test_event(&s2, &s2e);
@@ -123,9 +135,7 @@ void main() {
 				&& s2.state & M_BUTTON_STATE_ISDOWN
 			)
 		){
-			displayer_exit[current_displayer](is_adjust);
-			is_adjust = !is_adjust;
-			displayer_init[current_displayer](is_adjust);
+			set_adjust(!is_adjust);
 		}
 	}
 }

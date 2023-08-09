@@ -20,7 +20,7 @@
 #define LED_SEG_ROW_PIN10 P1_6
 #define LED_SEG_ROW_PIN11 P1_7
 
-extern uint8_t led_seg_state[LED_ROW_COUNT + SEG_DIGIT_COUNT];
+extern __data uint8_t led_seg_state[LED_ROW_COUNT + SEG_DIGIT_COUNT];
 
 inline void led_seg_col_clear(){
     LED_SEG_COL_PORT = 0xff;

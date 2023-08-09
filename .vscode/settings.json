@@ -21,6 +21,7 @@
         "delay.h": "c",
         "fifo-buffer.h": "c",
         "time.h": "c",
-        "datetime.h": "c"
+        "datetime.h": "c",
+        "temp-light.h": "c"
     }
 }

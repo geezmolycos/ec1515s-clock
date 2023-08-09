@@ -10,7 +10,7 @@
 #include "ds1302.h"
 #include "buzzer.h"
 
-#define DISPLAYER_AMOUNT 3
+#define DISPLAYER_AMOUNT 5
 
 extern ButtonConfig s1;
 extern ButtonEvent s1e;
@@ -25,5 +25,7 @@ extern uint16_t after_t0;
 
 extern uint8_t count_fast;
 extern uint8_t count_slow;
+
+void set_adjust(bool adjust);
 
 #endif // _MAIN_H
